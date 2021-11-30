@@ -1,0 +1,22 @@
+{
+    "name": "cblink-service/idaas-auth",
+    "description": "Package description here.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nick",
+            "email": "me@xieying.vip"
+        }
+    ],
+    "require": {
+        "hyperf-ext/auth": "^2.2",
+        "ramsey/uuid": "^4.2",
+        "firebase/php-jwt": "^5.5",
+        "hyperf/http-server": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cblink\\Service\\IDaasAuth\\": "src"
+        }
+    }
+}

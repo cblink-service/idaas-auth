@@ -12,7 +12,8 @@
         "hyperf-ext/auth": "^2.2",
         "ramsey/uuid": "^4.2",
         "firebase/php-jwt": "^5.5",
-        "hyperf/http-server": "^2.2"
+        "hyperf/http-server": "^2.2",
+        "cblink/hyperf-helper": "^0.1.0"
     },
     "autoload": {
         "psr-4": {

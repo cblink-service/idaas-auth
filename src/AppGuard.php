@@ -32,7 +32,7 @@ abstract class AppGuard implements GuardInterface
             $data = Aes::decode($accessToken, $this->getPublicKey(), true);
 
             if ($data) {
-                $this->user = new User($data);
+                $this->user = new AppUser($data);
             }
         }
 

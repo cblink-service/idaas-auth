@@ -44,7 +44,7 @@ abstract class Guard implements GuardInterface
             }
 
             // 验证有效期
-            if ($jwt->nbf < time() || $jwt->exp < time()) {
+            if ($jwt->nbf > time() || $jwt->exp < time()) {
                 throw new AuthenticationException();
             }
 

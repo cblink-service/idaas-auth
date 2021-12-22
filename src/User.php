@@ -10,17 +10,11 @@ class User implements AuthenticatableInterface
     /**
      * @var
      */
-    public $userId;
-
-    /**
-     * @var
-     */
     public $info;
 
     public function __construct($user)
     {
-        $this->userId = $user->user_id;
-        $this->info = $user->user;
+        $this->info = $user;
     }
 
     /**
@@ -30,7 +24,7 @@ class User implements AuthenticatableInterface
      */
     public function getId()
     {
-        return $this->userId;
+        return Arr::get($this->info, $this->getAuthIdentifierName());
     }
 
     /**
@@ -40,7 +34,7 @@ class User implements AuthenticatableInterface
      */
     public function getOpenid()
     {
-        return Arr::get($this->info, 'openid');
+        return Arr::get($this->info, 'user.openid');
     }
 
     /**
@@ -50,7 +44,7 @@ class User implements AuthenticatableInterface
      */
     public function getAvatar()
     {
-        return Arr::get($this->info, 'avatar', '');
+        return Arr::get($this->info, 'user.avatar', '');
     }
 
     /**
@@ -60,7 +54,7 @@ class User implements AuthenticatableInterface
      */
     public function getNickname()
     {
-        return Arr::get($this->info, 'nickname', '');
+        return Arr::get($this->info, 'user.nickname', '');
     }
 
     /**

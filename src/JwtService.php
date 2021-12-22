@@ -16,15 +16,16 @@ class JwtService
      */
     public function encode(array $options = [], string $appid = '', string $secret = '', int $ttl = 7200): string
     {
-        $payload = array_merge($options, [
+        $payload = [
             'iss' => config('app_name'),
             'exp' => time() + $ttl,
             'iat' => time(),
             'nbf' => time(),
             'jti' => Uuid::uuid4()->toString(),
-        ]);
+            'dat' => serialize($options),
+        ];
 
-        return  JWT::encode($payload, base64_encode($appid.$secret), 'HS256');
+        return  JWT::encode($payload, base64_encode($appid.$secret));
     }
 
     /**

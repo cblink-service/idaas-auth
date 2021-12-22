@@ -5,6 +5,7 @@ namespace Cblink\Service\IDaasAuth;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use HyperfExt\Auth\Contracts\AuthenticatableInterface;
 use HyperfExt\Auth\Contracts\GuardInterface;
+use HyperfExt\Auth\Exceptions\AuthenticationException;
 use HyperfExt\Auth\GuardHelpers;
 
 abstract class Guard implements GuardInterface
@@ -35,14 +36,20 @@ abstract class Guard implements GuardInterface
 
             $accessToken = str_replace("Bearer ", "", $token);
 
+            // 解密内容
             try {
                 $jwt = $this->service->decode($accessToken, $this->getAppId(), $this->getAppSecret());
             } catch (\Exception $exception) {
                 return null;
             }
 
-            if (isset($jwt->user_id)) {
-                $this->user = new User($jwt);
+            // 验证有效期
+            if ($jwt->nbf < time() || $jwt->exp < time()) {
+                throw new AuthenticationException();
+            }
+
+            if (isset($jwt->dat)) {
+                $this->user = new User(unserialize($jwt->dat));
             }
         }
 

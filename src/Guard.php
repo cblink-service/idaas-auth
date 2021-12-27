@@ -43,13 +43,8 @@ abstract class Guard implements GuardInterface
                 return null;
             }
 
-            // 验证有效期
-            if ($jwt->nbf > time() || $jwt->exp < time()) {
-                throw new AuthenticationException();
-            }
-
             if (isset($jwt->dat)) {
-                $this->user = new User(unserialize($jwt->dat));
+                $this->user = new User($jwt);
             }
         }
 

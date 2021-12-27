@@ -2,17 +2,14 @@
 
 namespace Cblink\Service\IDaasAuth;
 
-use DateTime;
-use Firebase\JWT\BeforeValidException;
-use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use Ramsey\Uuid\Uuid;
-use InvalidArgumentException;
-use UnexpectedValueException;
 
 class JwtService
 {
+    protected $algo = 'AES-CBC-128';
+
     /**
      * @param array $options
      * @param string $appid
@@ -23,36 +20,78 @@ class JwtService
     public function encode(array $options = [], string $appid = '', string $secret = '', int $ttl = 7200): string
     {
         $payload = [
-            'iss' => config('app_name'),
+            'iss' => 'cb-sign-center',
             'exp' => time() + $ttl,
             'iat' => time(),
             'nbf' => time(),
             'jti' => Uuid::uuid4()->toString(),
-            'dat' => serialize($options),
+            'dat' => $this->encryptData($options, $secret)
         ];
 
-        return  JWT::encode($payload, base64_encode($appid.$secret));
+        return JWT::encode($payload, base64_encode($appid.$secret));
     }
 
     /**
      * @param string $jwt
      * @param string $appid
      * @param string $secret
-     * @return object
+     * @return array
      */
     public function decode(string $jwt, string $appid = '', string $secret = '')
     {
-        return JWT::decode($jwt, base64_encode($appid.$secret), ['HS256']);
+        $data = JWT::decode($jwt, base64_encode($appid.$secret), ['HS256']);
+
+        if (!property_exists($data, 'dat')) {
+            throw new SignatureInvalidException('Signature verification failed');
+        }
+
+        return $this->decryptData($data->dat, $secret);
     }
 
     /**
      * 解密内容
      *
      * @param $jwt
-     * @return object
+     * @param string $secret
+     * @return array
      */
-    public function jsonData($jwt)
+    public function jsonData($jwt, string $secret = '')
     {
-        return JWT::jsonDecode($jwt);
+        $data = JWT::jsonDecode($jwt);
+
+        if (!property_exists($data, 'dat')) {
+            throw new SignatureInvalidException('Signature verification failed');
+        }
+
+        return $this->decryptData($data->dat, $secret);
+    }
+
+    /**
+     * @param array $options
+     * @param string $secret
+     * @return false|string
+     */
+    protected function encryptData(array $options = [], string $secret = '')
+    {
+        return openssl_encrypt(serialize($options), $this->algo, $this->getPassphrase($secret));
+    }
+
+    /**
+     * @param $dat
+     * @param $secret
+     * @return array
+     */
+    protected function decryptData($dat, $secret)
+    {
+        return unserialize(openssl_decrypt($dat, $this->algo, $this->getPassphrase($secret)));
+    }
+
+    /**
+     * @param string $secret
+     * @return false|string
+     */
+    protected function getPassphrase(string $secret = '')
+    {
+        return substr($secret, 0, 16);
     }
 }

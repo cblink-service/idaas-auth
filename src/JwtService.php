@@ -2,8 +2,14 @@
 
 namespace Cblink\Service\IDaasAuth;
 
+use DateTime;
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 use Ramsey\Uuid\Uuid;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 class JwtService
 {
@@ -37,5 +43,16 @@ class JwtService
     public function decode(string $jwt, string $appid = '', string $secret = '')
     {
         return JWT::decode($jwt, base64_encode($appid.$secret), ['HS256']);
+    }
+
+    /**
+     * 解密内容
+     *
+     * @param $jwt
+     * @return object
+     */
+    public function jsonData($jwt)
+    {
+        return JWT::jsonDecode($jwt);
     }
 }

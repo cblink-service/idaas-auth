@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 
 class JwtService
 {
-    protected $algo = 'AES-CBC-128';
+    protected $algo = 'AES-128-CBC';
 
     /**
      * @param array $options

@@ -3,12 +3,13 @@
 namespace Cblink\Service\IDaasAuth;
 
 use Firebase\JWT\JWT;
+use UnexpectedValueException;
 use Firebase\JWT\SignatureInvalidException;
 use Ramsey\Uuid\Uuid;
 
 class JwtService
 {
-    protected $algo = 'AES-128-CBC';
+    protected $algo = 'AES-128-ECB';
 
     /**
      * @param array $options
@@ -57,7 +58,14 @@ class JwtService
      */
     public function jsonData($jwt, string $secret = '')
     {
-        $data = JWT::jsonDecode($jwt);
+        $tks = \explode('.', $jwt);
+
+        if (\count($tks) != 3) {
+            throw new UnexpectedValueException('Wrong number of segments');
+        }
+        list($headb64, $bodyb64, $cryptob64) = $tks;
+
+        $data = JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64));
 
         if (!property_exists($data, 'dat')) {
             throw new SignatureInvalidException('Signature verification failed');
@@ -73,7 +81,11 @@ class JwtService
      */
     protected function encryptData(array $options = [], string $secret = '')
     {
-        return openssl_encrypt(serialize($options), $this->algo, $this->getPassphrase($secret));
+        return base64_encode(openssl_encrypt(
+            json_encode($options),
+            $this->algo,
+            $this->getPassphrase($secret)
+        ));
     }
 
     /**
@@ -83,7 +95,11 @@ class JwtService
      */
     protected function decryptData($dat, $secret)
     {
-        return unserialize(openssl_decrypt($dat, $this->algo, $this->getPassphrase($secret)));
+        return json_decode(openssl_decrypt(
+            base64_decode($dat),
+            $this->algo,
+            $this->getPassphrase($secret)
+        ), true);
     }
 
     /**

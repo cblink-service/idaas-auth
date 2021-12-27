@@ -43,9 +43,7 @@ abstract class Guard implements GuardInterface
                 return null;
             }
 
-            if (isset($jwt->dat)) {
-                $this->user = new User($jwt);
-            }
+            $this->user = new User($jwt);
         }
 
         return $this->user;

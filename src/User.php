@@ -15,6 +15,10 @@ class User implements AuthenticatableInterface
     public function __construct($user)
     {
         $this->info = $user;
+
+        logger()->info('debug user', [
+            $user
+        ]);
     }
 
     /**

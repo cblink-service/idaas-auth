@@ -33,6 +33,30 @@ class AppUser implements AuthenticatableInterface
     /**
      * @return string
      */
+    public function code()
+    {
+        return Arr::get($this->data, 'code');
+    }
+
+    /**
+     * @return string
+     */
+    public function status()
+    {
+        return Arr::get($this->data, 'status');
+    }
+
+    /**
+     * @return int|string
+     */
+    public function expireTime()
+    {
+        return Arr::get($this->data, 'expire_time', 0);
+    }
+
+    /**
+     * @return string
+     */
     public function getAuthIdentifierName(): string
     {
         return 'appid';
